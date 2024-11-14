@@ -1,1 +1,2 @@
-# KawaiiCatPuzzle_HTML5
+# MinimalPuzzle_BW
+A Minimalistic Black & White puzzle game
