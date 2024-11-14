@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kawaii Cat Cafe Puzzle</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to bottom, #fce4ec, #e1bee7);
+        }
+        canvas {
+            border: 4px solid #ff80ab;
+            border-radius: 10px;
+        }
+        #gameInfo {
+            display: flex;
+            justify-content: space-between;
+            width: 360px;
+            margin-bottom: 10px;
+        }
+        .info {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #score { color: #e91e63; }
+        #moves { color: #9c27b0; }
+        #resetButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: linear-gradient(to right, #ff4081, #ab47bc);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #gameOver {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+        }
+        #gameOverContent {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: #e91e63; font-size: 28px; margin-bottom: 20px;">Kawaii Cat Cafe Puzzle</h1>
+    <div id="gameInfo">
+        <span id="score" class="info">Score: 0</span>
+        <span id="moves" class="info">Moves: 15</span>
+    </div>
+    <canvas id="gameCanvas" width="360" height="360"></canvas>
+    <button id="resetButton">Reset Game</button>
+    <div id="gameOver">
+        <div id="gameOverContent">
+            <h2 style="color: #e91e63;">Game Over!</h2>
+            <p id="finalScore"></p>
+            <button id="playAgainButton" style="padding: 10px 20px; font-size: 16px; background: linear-gradient(to right, #ff4081, #ab47bc); color: white; border: none; border-radius: 5px; cursor: pointer;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 6;
+        const cellSize = canvas.width / gridSize;
+
+        const itemTypes = [
+            { color: '#e91e63', symbol: '❤️' }, // Heart
+            { color: '#795548', symbol: '☕' }, // Coffee
+            { color: '#2196f3', symbol: '🐟' }, // Fish
+            { color: '#f5f5f5', symbol: '🥛' }, // Milk
+        ];
+
+        let grid = [];
+        let score = 0;
+        let moves = 15;
+        let gameOver = false;
+
+        function generateGrid() {
+            grid = [];
+            for (let i = 0; i < gridSize; i++) {
+                grid[i] = [];
+                for (let j = 0; j < gridSize; j++) {
+                    grid[i][j] = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+                }
+            }
+        }
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const item = grid[i][j];
+                    ctx.fillStyle = item.color;
+                    ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+                    ctx.fillStyle = 'white';
+                    ctx.font = `${cellSize * 0.6}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(item.symbol, j * cellSize + cellSize / 2, i * cellSize + cellSize / 2);
+                }
+            }
+        }
+
+        function handleClick(event) {
+            if (gameOver) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            const col = Math.floor(x / cellSize);
+            const row = Math.floor(y / cellSize);
+
+            clearMatches(row, col);
+        }
+
+        function clearMatches(row, col) {
+            const item = grid[row][col];
+            let matchCount = 0;
+
+            function checkAndClear(r, c) {
+                if (r >= 0 && r < gridSize && c >= 0 && c < gridSize && grid[r][c] === item) {
+                    grid[r][c] = null;
+                    matchCount++;
+                    checkAndClear(r - 1, c);
+                    checkAndClear(r + 1, c);
+                    checkAndClear(r, c - 1);
+                    checkAndClear(r, c + 1);
+                }
+            }
+
+            checkAndClear(row, col);
+
+            if (matchCount >= 2) {
+                score += matchCount;
+                moves--;
+                updateScore();
+                fillEmptySpaces();
+                drawGrid();
+
+                if (moves === 0) {
+                    endGame();
+                }
+            }
+        }
+
+        function fillEmptySpaces() {
+            for (let col = 0; col < gridSize; col++) {
+                let emptyRow = gridSize - 1;
+                for (let row = gridSize - 1; row >= 0; row--) {
+                    if (grid[row][col] !== null) {
+                        if (row !== emptyRow) {
+                            grid[emptyRow][col] = grid[row][col];
+                            grid[row][col] = null;
+                        }
+                        emptyRow--;
+                    }
+                }
+                for (let row = emptyRow; row >= 0; row--) {
+                    grid[row][col] = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+                }
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = `Score: ${score}`;
+            document.getElementById('moves').textContent = `Moves: ${moves}`;
+        }
+
+        function endGame() {
+            gameOver = true;
+            document.getElementById('gameOver').style.visibility = 'visible';
+            document.getElementById('finalScore').textContent = `Your score: ${score}`;
+        }
+
+        function resetGame() {
+            score = 0;
+            moves = 15;
+            gameOver = false;
+            generateGrid();
+            drawGrid();
+            updateScore();
+            document.getElementById('gameOver').style.visibility = 'hidden';
+        }
+
+        canvas.addEventListener('click', handleClick);
+        document.getElementById('resetButton').addEventListener('click', resetGame);
+        document.getElementById('playAgainButton').addEventListener('click', resetGame);
+
+        generateGrid();
+        drawGrid();
+        updateScore();
+    </script>
+</body>
+</html>
