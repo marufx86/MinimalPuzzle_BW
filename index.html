@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kawaii Cat Cafe Puzzle</title>
+    <title>Minimal Puzzle BW</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -13,32 +13,31 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background: linear-gradient(to bottom, #fce4ec, #e1bee7);
+            background: #f5f5f5;
+            color: #333;
         }
         canvas {
-            border: 4px solid #ff80ab;
-            border-radius: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
         }
         #gameInfo {
             display: flex;
             justify-content: space-between;
-            width: 360px;
+            width: 300px;
             margin-bottom: 10px;
+            font-size: 16px;
         }
         .info {
-            font-size: 18px;
             font-weight: bold;
         }
-        #score { color: #e91e63; }
-        #moves { color: #9c27b0; }
         #resetButton {
             margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background: linear-gradient(to right, #ff4081, #ab47bc);
+            padding: 8px 16px;
+            font-size: 14px;
+            background: #333;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
         }
         #gameOver {
@@ -47,7 +46,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -56,24 +55,24 @@
         #gameOverContent {
             background-color: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 8px;
             text-align: center;
         }
     </style>
 </head>
 <body>
-    <h1 style="color: #e91e63; font-size: 28px; margin-bottom: 20px;">Kawaii Cat Cafe Puzzle</h1>
+    <h1 style="font-size: 24px; margin-bottom: 20px;">Minimal Puzzle B&W</h1>
     <div id="gameInfo">
         <span id="score" class="info">Score: 0</span>
         <span id="moves" class="info">Moves: 15</span>
     </div>
-    <canvas id="gameCanvas" width="360" height="360"></canvas>
+    <canvas id="gameCanvas" width="300" height="300"></canvas>
     <button id="resetButton">Reset Game</button>
     <div id="gameOver">
         <div id="gameOverContent">
-            <h2 style="color: #e91e63;">Game Over!</h2>
+            <h2 style="color: #333;">Game Over!</h2>
             <p id="finalScore"></p>
-            <button id="playAgainButton" style="padding: 10px 20px; font-size: 16px; background: linear-gradient(to right, #ff4081, #ab47bc); color: white; border: none; border-radius: 5px; cursor: pointer;">Play Again</button>
+            <button id="playAgainButton" style="padding: 8px 16px; font-size: 14px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer;">Play Again</button>
         </div>
     </div>
 
@@ -84,10 +83,10 @@
         const cellSize = canvas.width / gridSize;
 
         const itemTypes = [
-            { color: '#e91e63', symbol: '❤️' }, // Heart
-            { color: '#795548', symbol: '☕' }, // Coffee
-            { color: '#2196f3', symbol: '🐟' }, // Fish
-            { color: '#f5f5f5', symbol: '🥛' }, // Milk
+            { color: '#444', symbol: '⬤' }, // Circle
+            { color: '#777', symbol: '◯' }, // Hollow Circle
+            { color: '#aaa', symbol: '■' }, // Square
+            { color: '#ccc', symbol: '□' }  // Hollow Square
         ];
 
         let grid = [];
@@ -112,7 +111,7 @@
                     const item = grid[i][j];
                     ctx.fillStyle = item.color;
                     ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
-                    ctx.fillStyle = 'white';
+                    ctx.fillStyle = '#fff';
                     ctx.font = `${cellSize * 0.6}px Arial`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
